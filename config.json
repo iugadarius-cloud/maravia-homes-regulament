@@ -1,0 +1,8 @@
+{
+  "pinGazda": "2468",
+  "port": 3000,
+  "smtpHost": "smtp.mail.me.com",
+  "smtpPort": 587,
+  "smtpUser": "iuga.darius@icloud.com",
+  "smtpPassword": ""
+}

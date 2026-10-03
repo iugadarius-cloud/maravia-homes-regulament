@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ro">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Arhiva acorduri — Maravia Homes regulament</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Source+Sans+3:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css?v=7" />
+  </head>
+  <body>
+    <div class="noise"></div>
+    <header class="top">
+      <a class="brand" href="index.html">
+        <span class="mark">M</span>
+        <span>
+          <strong>Maravia Homes regulament</strong>
+          <em>arhiva gazdei</em>
+        </span>
+      </a>
+      <a class="ghost-link" href="index.html">Înapoi la formular</a>
+    </header>
+    <main class="sheet admin-wrap">
+      <h1>Acorduri semnate</h1>
+      <p class="lead">
+        Introduceți PIN-ul gazdei ca să vedeți PDF-urile salvate automat.
+      </p>
+      <form id="pinForm" class="pin-row">
+        <label>
+          PIN
+          <input name="pin" type="password" inputmode="numeric" autocomplete="off" />
+        </label>
+        <button class="primary" type="submit">Deschide arhiva</button>
+      </form>
+      <p class="form-error hidden" id="pinError"></p>
+      <ul class="file-list" id="files"></ul>
+    </main>
+    <script src="js/admin.js?v=7"></script>
+  </body>
+</html>

@@ -1,0 +1,60 @@
+{
+  "hostName": "Maravia Homes regulament",
+  "emailTo": "iuga.darius@icloud.com",
+  "apartments": [
+    {
+      "id": "centru",
+      "name": "Apartament 1"
+    },
+    {
+      "id": "parc",
+      "name": "Apartament 2"
+    },
+    {
+      "id": "terasa",
+      "name": "Apartament 3"
+    }
+  ],
+  "rules": [
+    {
+      "title": "Program și respect față de vecini",
+      "items": [
+        "Liniște între orele 22:00 și 08:00. În acest interval evitați muzica tare, petrecerile și zgomotele care pot deranja vecinii.",
+        "Nu sunt permise petreceri, evenimente sau întâlniri cu persoane care nu figurează pe rezervare, fără acordul scris al gazdei.",
+        "Numărul de persoane cazate nu poate depăși numărul declarat la check-in."
+      ]
+    },
+    {
+      "title": "Fumat, animale și igienă",
+      "items": [
+        "Fumatul (inclusiv țigări electronice) este interzis în interior. Dacă există balcon, fumatul este permis doar acolo, cu ușa închisă și scrumieră.",
+        "Animalele de companie sunt acceptate doar dacă au fost anunțate și aprobate înainte de sosire.",
+        "Păstrați locuința curată. Gunoiul se aruncă zilnic la tomberoanele indicate în ghidul de sosire."
+      ]
+    },
+    {
+      "title": "Folosirea locuinței",
+      "items": [
+        "Folosiți aparatele electrocasnice conform instrucțiunilor. În caz de defecțiune, anunțați imediat gazda — nu încercați reparații pe cont propriu.",
+        "Nu mutați mobila grea și nu lipiți obiecte pe pereți.",
+        "Cheile, cardurile de acces și telecomenzile rămân în grija oaspetelui pe durata sejurului. Pierderea lor se taxează la costul de înlocuire.",
+        "La plecare: opriți luminile și aerul condiționat, închideți ferestrele, lăsați cheile în locul convenit."
+      ]
+    },
+    {
+      "title": "Răspundere și daune",
+      "items": [
+        "Oaspetele răspunde pentru orice daună produsă locuinței, mobilierului sau bunurilor din inventar, din vina sa sau a însoțitorilor.",
+        "Gazda poate reține din garanție (dacă există) costul reparațiilor, curățeniei extra sau înlocuirii obiectelor.",
+        "Este interzisă folosirea locuinței în scopuri ilegale."
+      ]
+    },
+    {
+      "title": "Date și comunicare",
+      "items": [
+        "Datele din acest formular (nume, telefon, perioadă de ședere) sunt folosite doar pentru evidența cazării și a acordului semnat.",
+        "Pentru urgențe sau probleme în locuință, contactați gazda pe numărul primit la rezervare."
+      ]
+    }
+  ]
+}

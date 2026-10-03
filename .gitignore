@@ -1,0 +1,5 @@
+node_modules/
+semnaturi/*.pdf
+.DS_Store
+.env
+smtp-password.txt

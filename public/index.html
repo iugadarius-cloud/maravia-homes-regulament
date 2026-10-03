@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ro">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Maravia Homes regulament</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Source+Sans+3:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css?v=7" />
+  </head>
+  <body>
+    <div class="noise"></div>
+    <header class="top">
+      <a class="brand" href="index.html">
+        <span class="mark">M</span>
+        <span>
+          <strong id="hostName">Maravia Homes regulament</strong>
+        </span>
+      </a>
+      <a class="ghost-link" href="admin.html">Pentru gazdă</a>
+    </header>
+
+    <main id="app">
+      <section class="hero" data-step="pick">
+        <p class="eyebrow">Bun venit</p>
+        <h1>Citiți regulamentul și semnați înainte de check-in.</h1>
+        <p class="lead">
+          Alegeți apartamentul în care stați. Completați datele, citiți regulile
+          și semnați. Acordul se salvează automat ca PDF.
+        </p>
+        <div class="apartments" id="apartments"></div>
+      </section>
+
+      <section class="sheet hidden" data-step="form">
+        <button type="button" class="back" id="backPick">← Schimbă apartamentul</button>
+        <p class="eyebrow" id="aptLabel"></p>
+        <h2>Datele șederii</h2>
+        <form id="guestForm" novalidate>
+          <label>
+            Nume și prenume
+            <input name="fullName" autocomplete="name" required minlength="3" />
+          </label>
+          <div class="row">
+            <label>
+              Telefon
+              <input name="phone" type="tel" autocomplete="tel" required />
+            </label>
+            <label>
+              E-mail <span class="opt">(opțional)</span>
+              <input name="email" type="email" autocomplete="email" />
+            </label>
+          </div>
+          <div class="row three">
+            <label>
+              Check-in
+              <input name="checkIn" type="date" required />
+            </label>
+            <label>
+              Check-out
+              <input name="checkOut" type="date" required />
+            </label>
+            <label>
+              Persoane
+              <input name="guests" type="number" min="1" max="12" value="2" required />
+            </label>
+          </div>
+
+          <h2 class="rules-title">Date de identificare</h2>
+          <p class="hint">Completeți datele din cartea de identitate.</p>
+          <div class="row">
+            <label>
+              CNP
+              <input
+                name="cnp"
+                inputmode="numeric"
+                autocomplete="off"
+                maxlength="13"
+                placeholder="13 cifre"
+                required
+              />
+            </label>
+            <label>
+              Serie CI
+              <input
+                name="serieCi"
+                autocomplete="off"
+                maxlength="9"
+                placeholder="ex. RK123456"
+                required
+              />
+            </label>
+          </div>
+
+          <h2 class="rules-title">Regulamentul locuinței</h2>
+          <div class="rules" id="rules"></div>
+
+          <label class="accept">
+            <input type="checkbox" name="accepted" required />
+            <span
+              >Am citit regulamentul, îl înțeleg și mă angajez să îl respect pe
+              toată durata șederii, împreună cu persoanele care mă însoțesc.</span
+            >
+          </label>
+
+          <h2>Semnătura</h2>
+          <p class="hint">Desenați semnătura cu degetul sau cu mouse-ul.</p>
+          <div class="pad-wrap">
+            <canvas id="pad" width="700" height="220"></canvas>
+            <button type="button" class="text-btn" id="clearPad">Șterge semnătura</button>
+          </div>
+
+          <p class="form-error hidden" id="formError"></p>
+          <button type="submit" class="primary" id="submitBtn">
+            Semnez și salvez PDF-ul
+          </button>
+        </form>
+      </section>
+
+      <section class="done hidden" data-step="done">
+        <p class="eyebrow">Gata</p>
+        <h2>Acordul a fost salvat.</h2>
+        <p class="lead" id="doneLead">
+          PDF-ul este păstrat în arhiva gazdei și a fost trimis pe email.
+        </p>
+        <a class="primary" id="downloadLink" href="#">Descarcă PDF-ul</a>
+        <button type="button" class="secondary" id="another">Semnează alt acord</button>
+      </section>
+    </main>
+
+    <footer>
+      <p>Acordul semnat rămâne la gazdă ca dovadă a acceptării regulamentului.</p>
+    </footer>
+    <script src="vendor/pdf-lib.min.js"></script>
+    <script src="vendor/fontkit.umd.js"></script>
+    <script src="js/app.js?v=7"></script>
+  </body>
+</html>
