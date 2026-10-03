@@ -265,32 +265,72 @@ function pdfFileFromDataUrl(dataUrl, fileName) {
   }
 }
 
-async function postFormSubmit(to, fields, pdfFile) {
-  const body = new FormData();
-  Object.keys(fields).forEach((key) => body.append(key, fields[key]));
-  if (pdfFile) {
-    const name = pdfFile.name || "acord.pdf";
-    body.append("file", pdfFile, name);
-    body.append("acord", pdfFile, name);
-  }
-  const res = await fetch("https://formsubmit.co/ajax/" + encodeURIComponent(to), {
-    method: "POST",
-    headers: { Accept: "application/json" },
-    body,
+function sendPdfByMultipartForm(fields, pdfFile) {
+  return new Promise((resolve, reject) => {
+    const fileName = pdfFile.name || "acord.pdf";
+    let fileToSend = pdfFile;
+    if (!(pdfFile instanceof File)) {
+      try {
+        fileToSend = new File([pdfFile], fileName, { type: "application/pdf" });
+      } catch (e) {
+        reject(new Error("Browserul nu poate atașa PDF-ul."));
+        return;
+      }
+    }
+    if (!window.DataTransfer) {
+      reject(new Error("Folosiți Chrome sau Safari ca să se trimită PDF-ul."));
+      return;
+    }
+    const iframe = document.createElement("iframe");
+    iframe.name = "mailpdf_" + Date.now();
+    iframe.setAttribute("style", "position:absolute;width:0;height:0;border:0;visibility:hidden");
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = "https://formsubmit.co/" + HOST_EMAIL;
+    form.enctype = "multipart/form-data";
+    form.acceptCharset = "UTF-8";
+    form.target = iframe.name;
+    Object.keys(fields).forEach((key) => {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = key;
+      input.value = String(fields[key]);
+      form.appendChild(input);
+    });
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.name = "file";
+    fileInput.setAttribute("accept", "application/pdf");
+    const dt = new DataTransfer();
+    dt.items.add(fileToSend);
+    fileInput.files = dt.files;
+    if (!fileInput.files || !fileInput.files.length) {
+      reject(new Error("PDF-ul nu a putut fi pus în formular."));
+      return;
+    }
+    form.appendChild(fileInput);
+    document.body.appendChild(iframe);
+    document.body.appendChild(form);
+    const cleanup = () => {
+      form.remove();
+      iframe.remove();
+    };
+    const done = () => {
+      cleanup();
+      resolve();
+    };
+    iframe.addEventListener("load", done, { once: true });
+    form.submit();
+    setTimeout(done, 4500);
   });
-  const data = await res.json().catch(() => ({}));
-  const ok = res.ok && data.success !== "false" && data.success !== false;
-  if (!ok) throw new Error(data.message || "Emailul nu a putut fi trimis.");
-  return data;
 }
 
 async function sendViaFormSubmit(guest, apartment, pdfDataUrl) {
-  const to = HOST_EMAIL;
   const fileName =
     "Acord-" +
     apartment.id +
     "-" +
-    String(guest.fullName).replace(/\s+/g, "-") +
+    String(guest.fullName).replace(/[^a-zA-Z0-9_-]+/g, "-") +
     ".pdf";
   const fields = {
     Apartament: apartment.name,
@@ -302,16 +342,16 @@ async function sendViaFormSubmit(guest, apartment, pdfDataUrl) {
     "Check-in": guest.checkIn,
     "Check-out": guest.checkOut,
     Persoane: String(guest.guests),
-    Format: "PDF atasat",
-    _subject: "Acord PDF — " + apartment.name + " — " + guest.fullName,
+    Atasament: "Da — fișier PDF semnat",
+    _subject: "Acord PDF semnat — " + apartment.name + " — " + guest.fullName,
     _captcha: "false",
     _template: "box",
   };
-  await postFormSubmit(to, fields, pdfFileFromDataUrl(pdfDataUrl, fileName));
+  await sendPdfByMultipartForm(fields, pdfFileFromDataUrl(pdfDataUrl, fileName));
 }
 
 async function boot() {
-  const res = await fetch("config.json?v=11");
+  const res = await fetch("config.json?v=12");
   state.config = await res.json();
   $("#hostName").textContent = state.config.hostName;
   document.title = state.config.hostName;
@@ -415,7 +455,7 @@ $("#guestForm").onsubmit = async (e) => {
       lead.textContent =
         "PDF-ul a fost trimis la " +
         HOST_EMAIL +
-        ". Verificați și folderul Spam. Primul email poate fi doar confirmarea FormSubmit — apăsați linkul din el.";
+        ". Dacă nu vedeți un fișier .pdf atașat, căutați în Spam. Primul mesaj poate fi doar confirmarea — apăsați linkul, apoi semnați din nou.";
     } else {
       lead.textContent =
         "PDF-ul este salvat în arhivă, dar emailul nu a plecat. " +
