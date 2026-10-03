@@ -136,8 +136,8 @@ async function buildPdf(guest, apartment, signedAt) {
     ]);
     state.fonts = { reg, bold };
   }
-  const font = await pdf.embedFont(state.fonts.reg);
-  const fontBold = await pdf.embedFont(state.fonts.bold);
+  const font = await pdf.embedFont(state.fonts.reg, { subset: true });
+  const fontBold = await pdf.embedFont(state.fonts.bold, { subset: true });
   const ink = rgb(0.17, 0.13, 0.1);
   const muted = rgb(0.42, 0.34, 0.28);
 
@@ -247,40 +247,56 @@ function dataUrlToBlob(dataUrl) {
   return new Blob([bytes], { type: mime });
 }
 
-async function sendViaFormSubmit(guest, apartment, pdfDataUrl) {
-  const to = state.config.emailTo || "iugaica@yahoo.com";
-  const fileName =
-    "acord-" +
-    apartment.id +
-    "-" +
-    guest.fullName.replace(/\s+/g, "-") +
-    ".pdf";
+async function postFormSubmit(to, fields, file) {
   const body = new FormData();
-  body.append("Apartament", apartment.name);
-  body.append("Nume", guest.fullName);
-  body.append("CNP", guest.cnp);
-  body.append("Serie CI", guest.serieCi);
-  body.append("Telefon", guest.phone);
-  body.append("Email oaspete", guest.email || "—");
-  body.append("Check-in", guest.checkIn);
-  body.append("Check-out", guest.checkOut);
-  body.append("Persoane", String(guest.guests));
-  body.append("_subject", "Acord regulament — " + apartment.name + " — " + guest.fullName);
-  body.append("_captcha", "false");
-  body.append("acord", dataUrlToBlob(pdfDataUrl), fileName);
+  Object.keys(fields).forEach((key) => body.append(key, fields[key]));
+  if (file) body.append("attachment", file.blob, file.name);
   const res = await fetch("https://formsubmit.co/ajax/" + encodeURIComponent(to), {
     method: "POST",
     headers: { Accept: "application/json" },
     body,
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok || data.success === "false") {
-    throw new Error(data.message || "Emailul nu a putut fi trimis.");
+  const ok = res.ok && data.success !== "false" && data.success !== false;
+  if (!ok) throw new Error(data.message || "Emailul nu a putut fi trimis.");
+  return data;
+}
+
+async function sendViaFormSubmit(guest, apartment, pdfDataUrl) {
+  const to = state.config.emailTo || "iugaica@yahoo.com";
+  const fileName =
+    "acord-" +
+    apartment.id +
+    "-" +
+    String(guest.fullName).replace(/\s+/g, "-") +
+    ".pdf";
+  const fields = {
+    Apartament: apartment.name,
+    Nume: guest.fullName,
+    CNP: guest.cnp,
+    "Serie CI": guest.serieCi,
+    Telefon: guest.phone,
+    "Email oaspete": guest.email || "—",
+    "Check-in": guest.checkIn,
+    "Check-out": guest.checkOut,
+    Persoane: String(guest.guests),
+    _subject: "Acord regulament — " + apartment.name + " — " + guest.fullName,
+    _captcha: "false",
+    _template: "table",
+  };
+  try {
+    await postFormSubmit(to, fields, {
+      blob: dataUrlToBlob(pdfDataUrl),
+      name: fileName,
+    });
+  } catch (err) {
+    fields.Nota = "PDF-ul nu a putut fi atasat. Datele acordului sunt in acest email.";
+    await postFormSubmit(to, fields, null);
   }
 }
 
 async function boot() {
-  const res = await fetch("config.json?v=8");
+  const res = await fetch("config.json?v=9");
   state.config = await res.json();
   $("#hostName").textContent = state.config.hostName;
   document.title = state.config.hostName;
@@ -358,13 +374,14 @@ $("#guestForm").onsubmit = async (e) => {
       timeStyle: "short",
     });
     const pdf = await buildPdf(guest, apartment, signedAt);
-    let data = {
+    const data = {
       emailSent: false,
       emailTo: state.config.emailTo || "iugaica@yahoo.com",
       downloadUrl: pdf,
     };
-    try {
-      const res = await fetch("api/semneaza", {
+    const onPages = /\.github\.io$/i.test(location.hostname);
+    if (!onPages) {
+      fetch("api/semneaza", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -372,30 +389,18 @@ $("#guestForm").onsubmit = async (e) => {
           guest,
           pdf,
         }),
-      });
-      if (res.ok) {
-        const saved = await res.json();
-        data = Object.assign(data, saved, { downloadUrl: pdf });
-      } else if (res.status === 404 || res.status >= 500) {
-        await sendViaFormSubmit(guest, apartment, pdf);
-        data.emailSent = true;
-        data.downloadUrl = pdf;
-      } else {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || "Eroare la salvare.");
-      }
-    } catch (netErr) {
-      await sendViaFormSubmit(guest, apartment, pdf);
-      data.emailSent = true;
+      }).catch(() => {});
     }
+    await sendViaFormSubmit(guest, apartment, pdf);
+    data.emailSent = true;
     $("#downloadLink").href = data.downloadUrl;
     $("#downloadLink").setAttribute("download", "acord-maravia.pdf");
     const lead = $("#doneLead");
     if (data.emailSent) {
       lead.textContent =
-        "PDF-ul este păstrat în arhiva gazdei și a fost trimis la " +
+        "PDF-ul a fost trimis la " +
         (data.emailTo || "iugaica@yahoo.com") +
-        ".";
+        ". Verificați și folderul Spam. Primul email poate fi doar confirmarea FormSubmit — apăsați linkul din el.";
     } else {
       lead.textContent =
         "PDF-ul este salvat în arhivă, dar emailul nu a plecat. " +
