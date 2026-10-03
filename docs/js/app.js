@@ -1,3 +1,5 @@
+const HOST_EMAIL = "iugaica@yahoo.com";
+
 const state = {
   config: null,
   apartmentId: null,
@@ -263,7 +265,7 @@ async function postFormSubmit(to, fields, file) {
 }
 
 async function sendViaFormSubmit(guest, apartment, pdfDataUrl) {
-  const to = state.config.emailTo || "iugaica@yahoo.com";
+  const to = HOST_EMAIL;
   const fileName =
     "acord-" +
     apartment.id +
@@ -296,7 +298,7 @@ async function sendViaFormSubmit(guest, apartment, pdfDataUrl) {
 }
 
 async function boot() {
-  const res = await fetch("config.json?v=9");
+  const res = await fetch("config.json?v=10");
   state.config = await res.json();
   $("#hostName").textContent = state.config.hostName;
   document.title = state.config.hostName;
@@ -376,7 +378,7 @@ $("#guestForm").onsubmit = async (e) => {
     const pdf = await buildPdf(guest, apartment, signedAt);
     const data = {
       emailSent: false,
-      emailTo: state.config.emailTo || "iugaica@yahoo.com",
+      emailTo: HOST_EMAIL,
       downloadUrl: pdf,
     };
     const onPages = /\.github\.io$/i.test(location.hostname);
@@ -399,7 +401,7 @@ $("#guestForm").onsubmit = async (e) => {
     if (data.emailSent) {
       lead.textContent =
         "PDF-ul a fost trimis la " +
-        (data.emailTo || "iugaica@yahoo.com") +
+        HOST_EMAIL +
         ". Verificați și folderul Spam. Primul email poate fi doar confirmarea FormSubmit — apăsați linkul din el.";
     } else {
       lead.textContent =
