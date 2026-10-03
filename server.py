@@ -13,7 +13,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
 ROOT = Path(__file__).resolve().parent
-PUBLIC = ROOT / "public"
+PUBLIC = ROOT / "docs"
 SIGN_DIR = ROOT / "semnaturi"
 SIGN_DIR.mkdir(exist_ok=True)
 

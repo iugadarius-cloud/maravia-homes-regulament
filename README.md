@@ -4,7 +4,7 @@ Site in Romanian for guests to sign the house rules. The signed PDF is emailed t
 
 ## Public link (GitHub Pages)
 
-After you push this repo and enable Pages (Settings → Pages → Source: GitHub Actions), the site is:
+After you push this repo and enable Pages (Settings → Pages → Deploy from a branch → `main` / `docs`), the site is:
 
 `https://YOUR-USERNAME.github.io/maravia-homes-regulament/`
 
