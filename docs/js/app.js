@@ -204,8 +204,15 @@ async function buildPdf(guest, apartment, signedAt) {
   );
   draw("Semnătura oaspetelui", { bold: true, size: 11, gap: 8 });
 
-  const png = $("#pad").toDataURL("image/png");
-  const pngBytes = await fetch(png).then((r) => r.arrayBuffer());
+  const src = $("#pad");
+  const mini = document.createElement("canvas");
+  mini.width = 420;
+  mini.height = 130;
+  const mctx = mini.getContext("2d");
+  mctx.fillStyle = "#ffffff";
+  mctx.fillRect(0, 0, mini.width, mini.height);
+  mctx.drawImage(src, 0, 0, mini.width, mini.height);
+  const pngBytes = await fetch(mini.toDataURL("image/png")).then((r) => r.arrayBuffer());
   const img = await pdf.embedPng(pngBytes);
   need(90);
   const imgH = 70;
@@ -231,7 +238,7 @@ async function buildPdf(guest, apartment, signedAt) {
     gap: 0,
   });
 
-  const bytes = await pdf.save();
+  const bytes = await pdf.save({ useObjectStreams: true });
   let binary = "";
   const chunk = 0x8000;
   for (let i = 0; i < bytes.length; i += chunk) {
@@ -249,10 +256,23 @@ function dataUrlToBlob(dataUrl) {
   return new Blob([bytes], { type: mime });
 }
 
-async function postFormSubmit(to, fields, file) {
+function pdfFileFromDataUrl(dataUrl, fileName) {
+  const blob = dataUrlToBlob(dataUrl);
+  try {
+    return new File([blob], fileName, { type: "application/pdf" });
+  } catch (e) {
+    return blob;
+  }
+}
+
+async function postFormSubmit(to, fields, pdfFile) {
   const body = new FormData();
   Object.keys(fields).forEach((key) => body.append(key, fields[key]));
-  if (file) body.append("attachment", file.blob, file.name);
+  if (pdfFile) {
+    const name = pdfFile.name || "acord.pdf";
+    body.append("file", pdfFile, name);
+    body.append("acord", pdfFile, name);
+  }
   const res = await fetch("https://formsubmit.co/ajax/" + encodeURIComponent(to), {
     method: "POST",
     headers: { Accept: "application/json" },
@@ -267,7 +287,7 @@ async function postFormSubmit(to, fields, file) {
 async function sendViaFormSubmit(guest, apartment, pdfDataUrl) {
   const to = HOST_EMAIL;
   const fileName =
-    "acord-" +
+    "Acord-" +
     apartment.id +
     "-" +
     String(guest.fullName).replace(/\s+/g, "-") +
@@ -282,23 +302,16 @@ async function sendViaFormSubmit(guest, apartment, pdfDataUrl) {
     "Check-in": guest.checkIn,
     "Check-out": guest.checkOut,
     Persoane: String(guest.guests),
-    _subject: "Acord regulament — " + apartment.name + " — " + guest.fullName,
+    Format: "PDF atasat",
+    _subject: "Acord PDF — " + apartment.name + " — " + guest.fullName,
     _captcha: "false",
-    _template: "table",
+    _template: "box",
   };
-  try {
-    await postFormSubmit(to, fields, {
-      blob: dataUrlToBlob(pdfDataUrl),
-      name: fileName,
-    });
-  } catch (err) {
-    fields.Nota = "PDF-ul nu a putut fi atasat. Datele acordului sunt in acest email.";
-    await postFormSubmit(to, fields, null);
-  }
+  await postFormSubmit(to, fields, pdfFileFromDataUrl(pdfDataUrl, fileName));
 }
 
 async function boot() {
-  const res = await fetch("config.json?v=10");
+  const res = await fetch("config.json?v=11");
   state.config = await res.json();
   $("#hostName").textContent = state.config.hostName;
   document.title = state.config.hostName;
