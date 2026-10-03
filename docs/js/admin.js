@@ -18,7 +18,7 @@ form.onsubmit = async (e) => {
     render(data.files);
   } catch (ex) {
     err.textContent =
-      "Pe linkul public PDF-urile ajung pe email (iuga.darius@icloud.com). Arhiva locală funcționează doar cu python3 server.py.";
+      "Pe linkul public PDF-urile ajung pe email (iugaica@yahoo.com). Arhiva locală funcționează doar cu python3 server.py.";
     err.classList.remove("hidden");
   }
 };

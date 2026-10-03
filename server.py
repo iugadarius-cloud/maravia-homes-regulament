@@ -29,7 +29,7 @@ if _secrets.exists():
 
 PIN_GAZDA = os.environ.get("PIN_GAZDA", str(CONFIG.get("pinGazda", "2468")))
 PORT = int(os.environ.get("PORT", CONFIG.get("port", 3000)))
-EMAIL_TO = (os.environ.get("EMAIL_TO") or CONFIG.get("emailTo") or "iuga.darius@icloud.com").strip()
+EMAIL_TO = (os.environ.get("EMAIL_TO") or CONFIG.get("emailTo") or "iugaica@yahoo.com").strip()
 SAFE_NAME = re.compile(r"[^a-zA-Z0-9._-]+")
 
 

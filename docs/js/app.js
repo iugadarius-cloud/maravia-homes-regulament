@@ -248,7 +248,7 @@ function dataUrlToBlob(dataUrl) {
 }
 
 async function sendViaFormSubmit(guest, apartment, pdfDataUrl) {
-  const to = state.config.emailTo || "iuga.darius@icloud.com";
+  const to = state.config.emailTo || "iugaica@yahoo.com";
   const fileName =
     "acord-" +
     apartment.id +
@@ -280,7 +280,7 @@ async function sendViaFormSubmit(guest, apartment, pdfDataUrl) {
 }
 
 async function boot() {
-  const res = await fetch("config.json");
+  const res = await fetch("config.json?v=8");
   state.config = await res.json();
   $("#hostName").textContent = state.config.hostName;
   document.title = state.config.hostName;
@@ -360,7 +360,7 @@ $("#guestForm").onsubmit = async (e) => {
     const pdf = await buildPdf(guest, apartment, signedAt);
     let data = {
       emailSent: false,
-      emailTo: state.config.emailTo || "iuga.darius@icloud.com",
+      emailTo: state.config.emailTo || "iugaica@yahoo.com",
       downloadUrl: pdf,
     };
     try {
@@ -394,7 +394,7 @@ $("#guestForm").onsubmit = async (e) => {
     if (data.emailSent) {
       lead.textContent =
         "PDF-ul este păstrat în arhiva gazdei și a fost trimis la " +
-        (data.emailTo || "iuga.darius@icloud.com") +
+        (data.emailTo || "iugaica@yahoo.com") +
         ".";
     } else {
       lead.textContent =
